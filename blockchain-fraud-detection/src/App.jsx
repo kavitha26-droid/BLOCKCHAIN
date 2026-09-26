@@ -1,239 +1,239 @@
 import { useState } from "react";
 import "./App.css";
 
+const initialTransactions = [
+  {
+    id: "TXN-10482",
+    sender: "AC7842••91",
+    receiver: "AC2198••42",
+    amount: "₹8,450",
+    risk: 12,
+    status: "NORMAL",
+    hash: "0x7af2...91cd",
+    time: "2 min ago",
+  },
+  {
+    id: "TXN-10481",
+    sender: "AC5521••72",
+    receiver: "AC8842••16",
+    amount: "₹72,500",
+    risk: 86,
+    status: "SUSPICIOUS",
+    hash: "0x91bc...a821",
+    time: "8 min ago",
+  },
+  {
+    id: "TXN-10480",
+    sender: "AC1928••44",
+    receiver: "AC6421••83",
+    amount: "₹2,100",
+    risk: 8,
+    status: "NORMAL",
+    hash: "0x42de...721a",
+    time: "15 min ago",
+  },
+  {
+    id: "TXN-10479",
+    sender: "AC7281••30",
+    receiver: "AC9214••55",
+    amount: "₹1,25,000",
+    risk: 94,
+    status: "FRAUD",
+    hash: "0xa821...f912",
+    time: "24 min ago",
+  },
+  {
+    id: "TXN-10478",
+    sender: "AC4612••18",
+    receiver: "AC3012••77",
+    amount: "₹14,800",
+    risk: 21,
+    status: "NORMAL",
+    hash: "0x612c...8a91",
+    time: "31 min ago",
+  },
+];
+
 function App() {
   const [page, setPage] = useState("dashboard");
-  const [sender, setSender] = useState("");
-  const [receiver, setReceiver] = useState("");
-  const [amount, setAmount] = useState("");
+  const [transactions, setTransactions] = useState(initialTransactions);
+
+  const [form, setForm] = useState({
+    sender: "",
+    receiver: "",
+    amount: "",
+    type: "Online Transfer",
+  });
+
   const [result, setResult] = useState(null);
 
-  const transactions = [
-    {
-      id: "TXN-001",
-      sender: "ACC-102938",
-      receiver: "ACC-583920",
-      amount: "₹12,000",
-      risk: "Low",
-      status: "Normal",
-    },
-    {
-      id: "TXN-002",
-      sender: "ACC-938421",
-      receiver: "ACC-291830",
-      amount: "₹85,000",
-      risk: "High",
-      status: "Suspicious",
-    },
-    {
-      id: "TXN-003",
-      sender: "ACC-421782",
-      receiver: "ACC-772190",
-      amount: "₹8,500",
-      risk: "Low",
-      status: "Normal",
-    },
-    {
-      id: "TXN-004",
-      sender: "ACC-673829",
-      receiver: "ACC-129834",
-      amount: "₹62,000",
-      risk: "Medium",
-      status: "Suspicious",
-    },
-  ];
+  const navigate = (name) => {
+    setPage(name);
+  };
 
-  const checkTransaction = () => {
-    if (!sender || !receiver || !amount) {
-      alert("Please fill all the fields.");
+  const analyzeTransaction = () => {
+    const amount = Number(form.amount);
+
+    if (!form.sender || !form.receiver || !form.amount) {
+      alert("Please fill all transaction details.");
       return;
     }
 
-    const value = Number(amount);
+    let risk;
+    let status;
+    let reason;
 
-    if (value > 50000) {
-      setResult({
-        status: "SUSPICIOUS",
-        score: 82,
-        reason: "Transaction amount exceeds the normal security threshold.",
-        hash: "0x8f72c91a...d821",
-      });
+    if (amount >= 100000) {
+      risk = 94;
+      status = "FRAUD";
+      reason = "Transaction amount exceeds high-risk threshold.";
+    } else if (amount >= 50000) {
+      risk = 82;
+      status = "SUSPICIOUS";
+      reason = "Unusual transaction amount detected.";
+    } else if (amount >= 20000) {
+      risk = 46;
+      status = "SUSPICIOUS";
+      reason = "Transaction requires additional verification.";
     } else {
-      setResult({
-        status: "NORMAL",
-        score: 18,
-        reason: "Transaction appears to follow normal transaction patterns.",
-        hash: "0x3a91f72b...c291",
-      });
+      risk = 12;
+      status = "NORMAL";
+      reason = "Transaction pattern appears normal.";
     }
+
+    const newTransaction = {
+      id: `TXN-${10483 + transactions.length}`,
+      sender: form.sender,
+      receiver: form.receiver,
+      amount: `₹${amount.toLocaleString("en-IN")}`,
+      risk,
+      status,
+      hash: "0x" + Math.random().toString(16).substring(2, 10) + "...a821",
+      time: "Just now",
+    };
+
+    setResult({
+      risk,
+      status,
+      reason,
+      hash: newTransaction.hash,
+    });
+
+    setTransactions([newTransaction, ...transactions]);
+  };
+
+  const statusClass = (status) => {
+    return status.toLowerCase();
   };
 
   const renderDashboard = () => (
     <>
-      <div className="page-title">
-        <div>
-          <h1>Security Dashboard</h1>
-          <p>Real-time banking transaction monitoring and fraud detection.</p>
-        </div>
-        <div className="system-online">
-          <span></span> System Online
-        </div>
-      </div>
+      <PageHeader
+        title="Security Dashboard"
+        subtitle="Real-time banking fraud detection and blockchain monitoring"
+      />
 
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon blue">↔</div>
-          <div>
-            <p>Total Transactions</p>
-            <h2>1,284</h2>
-            <small>+12.5% this month</small>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon red">!</div>
-          <div>
-            <p>Suspicious</p>
-            <h2>37</h2>
-            <small>2.8% of transactions</small>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon green">✓</div>
-          <div>
-            <p>Verified</p>
-            <h2>1,247</h2>
-            <small>Blockchain verified</small>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon purple">◉</div>
-          <div>
-            <p>Detection Rate</p>
-            <h2>94.8%</h2>
-            <small>Fraud detection accuracy</small>
-          </div>
-        </div>
+        <StatCard title="Total Transactions" value="12,480" change="+8.2%" icon="↗" />
+        <StatCard title="Suspicious" value="327" change="+2.4%" icon="!" warning />
+        <StatCard title="Detection Rate" value="97.4%" change="+1.8%" icon="✓" />
+        <StatCard title="Blockchain Blocks" value="2,841" change="+124" icon="▣" />
       </div>
 
       <div className="dashboard-grid">
-        <div className="panel">
-          <div className="panel-header">
+        <section className="panel chart-panel">
+          <div className="panel-title">
             <div>
               <h3>Transaction Activity</h3>
-              <p>Weekly transaction volume</p>
+              <span>Last 7 days</span>
             </div>
-            <select>
-              <option>Last 7 days</option>
-              <option>Last 30 days</option>
-            </select>
+            <button className="small-btn">7 Days ▾</button>
           </div>
 
           <div className="chart">
-            <div className="chart-line"></div>
-            <div className="chart-labels">
-              <span>Mon</span>
-              <span>Tue</span>
-              <span>Wed</span>
-              <span>Thu</span>
-              <span>Fri</span>
-              <span>Sat</span>
-              <span>Sun</span>
-            </div>
+            {[55, 70, 48, 82, 64, 91, 76, 88, 68, 95, 79, 86].map(
+              (height, index) => (
+                <div className="bar-wrap" key={index}>
+                  <div
+                    className="bar"
+                    style={{ height: `${height}%` }}
+                  ></div>
+                </div>
+              )
+            )}
           </div>
-        </div>
 
-        <div className="panel">
-          <div className="panel-header">
+          <div className="chart-labels">
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+            <span>Sun</span>
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-title">
             <div>
               <h3>Risk Distribution</h3>
-              <p>Current transaction risk</p>
+              <span>Transaction classification</span>
             </div>
           </div>
 
-          <div className="risk-item">
+          <div className="risk-circle">
             <div>
-              <span>Low Risk</span>
-              <strong>72%</strong>
-            </div>
-            <div className="progress">
-              <div className="low-progress"></div>
+              <strong>78%</strong>
+              <span>Normal</span>
             </div>
           </div>
 
-          <div className="risk-item">
-            <div>
-              <span>Medium Risk</span>
-              <strong>21%</strong>
-            </div>
-            <div className="progress">
-              <div className="medium-progress"></div>
-            </div>
+          <div className="risk-list">
+            <RiskRow label="Normal" value="78%" type="normal" />
+            <RiskRow label="Suspicious" value="16%" type="suspicious" />
+            <RiskRow label="Fraud" value="6%" type="fraud" />
           </div>
-
-          <div className="risk-item">
-            <div>
-              <span>High Risk</span>
-              <strong>7%</strong>
-            </div>
-            <div className="progress">
-              <div className="high-progress"></div>
-            </div>
-          </div>
-        </div>
+        </section>
       </div>
 
-      <div className="panel">
-        <div className="panel-header">
-          <div>
-            <h3>Recent Transactions</h3>
-            <p>Latest monitored banking activity</p>
-          </div>
-          <button
-            className="text-button"
-            onClick={() => setPage("transactions")}
-          >
-            View All →
-          </button>
-        </div>
-
-        <TransactionTable />
-      </div>
+      <TransactionTable transactions={transactions.slice(0, 5)} />
     </>
   );
 
   const renderVerify = () => (
     <>
-      <div className="page-title">
-        <div>
-          <h1>Transaction Verification</h1>
-          <p>Analyze a banking transaction for potential fraud.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Verify Transaction"
+        subtitle="Analyze a banking transaction for potential fraud"
+      />
 
-      <div className="verify-layout">
-        <div className="panel verify-card">
-          <h3>Transaction Details</h3>
-          <p className="panel-description">
-            Enter the transaction details to perform a security analysis.
-          </p>
+      <div className="verify-grid">
+        <section className="panel form-panel">
+          <div className="section-heading">
+            <span className="section-icon">⌁</span>
+            <div>
+              <h3>Transaction Details</h3>
+              <p>Enter transaction information</p>
+            </div>
+          </div>
 
           <label>Sender Account</label>
           <input
-            type="text"
-            placeholder="e.g. ACC-102938"
-            value={sender}
-            onChange={(e) => setSender(e.target.value)}
+            placeholder="e.g. AC784291"
+            value={form.sender}
+            onChange={(e) =>
+              setForm({ ...form, sender: e.target.value })
+            }
           />
 
           <label>Receiver Account</label>
           <input
-            type="text"
-            placeholder="e.g. ACC-583920"
-            value={receiver}
-            onChange={(e) => setReceiver(e.target.value)}
+            placeholder="e.g. AC219842"
+            value={form.receiver}
+            onChange={(e) =>
+              setForm({ ...form, receiver: e.target.value })
+            }
           />
 
           <label>Transaction Amount</label>
@@ -241,518 +241,518 @@ function App() {
             <span>₹</span>
             <input
               type="number"
-              placeholder="Enter amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              value={form.amount}
+              onChange={(e) =>
+                setForm({ ...form, amount: e.target.value })
+              }
             />
           </div>
 
           <label>Transaction Type</label>
-          <select className="full-select">
+          <select
+            value={form.type}
+            onChange={(e) =>
+              setForm({ ...form, type: e.target.value })
+            }
+          >
+            <option>Online Transfer</option>
+            <option>UPI Payment</option>
             <option>Bank Transfer</option>
-            <option>Online Payment</option>
             <option>Card Payment</option>
-            <option>UPI Transfer</option>
           </select>
 
-          <button className="primary-button" onClick={checkTransaction}>
-            VERIFY TRANSACTION
+          <button className="analyze-btn" onClick={analyzeTransaction}>
+            ANALYZE TRANSACTION
+            <span>→</span>
           </button>
-        </div>
+        </section>
 
-        <div className="panel analysis-card">
+        <section className="panel result-panel">
           {!result ? (
-            <div className="empty-analysis">
-              <div className="shield">◈</div>
-              <h3>Ready for Analysis</h3>
+            <div className="empty-result">
+              <div className="shield-large">⬡</div>
+              <h3>Awaiting Analysis</h3>
               <p>
-                Submit a transaction to view fraud risk and blockchain
-                verification details.
+                Submit transaction details to generate a fraud risk
+                assessment.
               </p>
             </div>
           ) : (
-            <div>
-              <div
-                className={`result-header ${
-                  result.status === "SUSPICIOUS" ? "danger" : "safe"
-                }`}
-              >
-                <div className="result-icon">
-                  {result.status === "SUSPICIOUS" ? "!" : "✓"}
-                </div>
+            <>
+              <div className="result-top">
                 <div>
-                  <p>Transaction Status</p>
+                  <span className="eyebrow">ANALYSIS RESULT</span>
                   <h2>{result.status}</h2>
+                </div>
+                <div className={`risk-score ${statusClass(result.status)}`}>
+                  {result.risk}
                 </div>
               </div>
 
-              <div className="risk-score">
-                <div className="score-circle">
-                  <strong>{result.score}</strong>
-                  <span>/100</span>
-                </div>
-
+              <div className="result-details">
                 <div>
-                  <h3>Risk Score</h3>
-                  <p>
-                    {result.score > 50
-                      ? "High risk transaction detected."
-                      : "Low risk transaction detected."}
-                  </p>
+                  <span>Risk Score</span>
+                  <strong>{result.risk}/100</strong>
+                </div>
+                <div>
+                  <span>Decision</span>
+                  <strong className={statusClass(result.status)}>
+                    {result.status}
+                  </strong>
                 </div>
               </div>
 
               <div className="reason-box">
-                <strong>Analysis</strong>
+                <span>Detection Reason</span>
                 <p>{result.reason}</p>
               </div>
 
-              <div className="blockchain-box">
-                <div>
-                  <span>Blockchain Status</span>
-                  <strong>✓ Recorded</strong>
-                </div>
-                <div>
-                  <span>Transaction Hash</span>
-                  <strong>{result.hash}</strong>
-                </div>
+              <div className="hash-box">
+                <span>Blockchain Hash</span>
+                <code>{result.hash}</code>
               </div>
-            </div>
+            </>
           )}
-        </div>
+        </section>
       </div>
     </>
   );
 
   const renderAnalytics = () => (
     <>
-      <div className="page-title">
-        <div>
-          <h1>Fraud Analytics</h1>
-          <p>Monitor transaction patterns and security risks.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Fraud Analytics"
+        subtitle="Monitor fraud patterns and detection performance"
+      />
 
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon blue">₹</div>
-          <div>
-            <p>Transaction Volume</p>
-            <h2>₹48.2L</h2>
-            <small>Last 30 days</small>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon red">!</div>
-          <div>
-            <p>Fraud Attempts</p>
-            <h2>37</h2>
-            <small>Detected and flagged</small>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon green">✓</div>
-          <div>
-            <p>Blocked</p>
-            <h2>31</h2>
-            <small>High-risk transactions</small>
-          </div>
-        </div>
+        <StatCard title="Fraud Attempts" value="184" change="-12.4%" icon="!" />
+        <StatCard title="Blocked" value="163" change="+6.1%" icon="⊘" />
+        <StatCard title="False Positives" value="2.6%" change="-0.8%" icon="⌁" />
+        <StatCard title="Avg. Risk Score" value="28.7" change="-4.2%" icon="◈" />
       </div>
 
       <div className="analytics-grid">
-        <div className="panel">
-          <h3>Risk Analysis</h3>
-
-          <div className="risk-analysis">
-            <div className="analysis-row">
-              <span>Amount Anomaly</span>
-              <div className="analysis-bar">
-                <div style={{ width: "85%" }}></div>
-              </div>
-              <strong>85%</strong>
-            </div>
-
-            <div className="analysis-row">
-              <span>Unusual Activity</span>
-              <div className="analysis-bar">
-                <div style={{ width: "72%" }}></div>
-              </div>
-              <strong>72%</strong>
-            </div>
-
-            <div className="analysis-row">
-              <span>Frequency Anomaly</span>
-              <div className="analysis-bar">
-                <div style={{ width: "48%" }}></div>
-              </div>
-              <strong>48%</strong>
-            </div>
-
-            <div className="analysis-row">
-              <span>Account Behavior</span>
-              <div className="analysis-bar">
-                <div style={{ width: "32%" }}></div>
-              </div>
-              <strong>32%</strong>
-            </div>
-          </div>
-        </div>
-
-        <div className="panel">
-          <h3>Detection Summary</h3>
-
-          <div className="summary-circle">
-            <strong>94.8%</strong>
-            <span>Detection Rate</span>
-          </div>
-
-          <div className="summary-details">
+        <section className="panel">
+          <div className="panel-title">
             <div>
-              <span>Normal</span>
-              <strong>1,247</strong>
-            </div>
-            <div>
-              <span>Suspicious</span>
-              <strong>37</strong>
+              <h3>Risk Analysis</h3>
+              <span>Current transaction distribution</span>
             </div>
           </div>
-        </div>
+
+          <div className="horizontal-bars">
+            <AnalyticsBar label="Low Risk" value="78%" width="78%" />
+            <AnalyticsBar label="Medium Risk" value="16%" width="16%" />
+            <AnalyticsBar label="High Risk" value="6%" width="6%" />
+          </div>
+        </section>
+
+        <section className="panel detection-card">
+          <span className="eyebrow">DETECTION ENGINE</span>
+          <h2>97.4%</h2>
+          <p>Overall fraud detection rate</p>
+
+          <div className="progress">
+            <div style={{ width: "97.4%" }}></div>
+          </div>
+
+          <div className="engine-points">
+            <span>✓ Rule-based analysis</span>
+            <span>✓ Risk scoring</span>
+            <span>✓ Pattern verification</span>
+          </div>
+        </section>
       </div>
     </>
   );
 
   const renderBlockchain = () => (
     <>
-      <div className="page-title">
+      <PageHeader
+        title="Blockchain Ledger"
+        subtitle="Immutable transaction records secured by blockchain"
+      />
+
+      <div className="blockchain-banner">
+        <div className="chain-icon">⬡</div>
         <div>
-          <h1>Blockchain Ledger</h1>
-          <p>Immutable transaction records and hash verification.</p>
+          <span>NETWORK STATUS</span>
+          <h3>Ganache Local Ethereum Network</h3>
         </div>
-        <div className="blockchain-status">● Blockchain Connected</div>
+        <div className="online">
+          <i></i> Connected
+        </div>
       </div>
 
-      <div className="panel blockchain-detail">
-        <div className="blockchain-heading">
-          <div className="chain-icon">⛓</div>
-          <div>
-            <h2>Transaction Record</h2>
-            <p>Verified blockchain entry</p>
+      <div className="block-grid">
+        {[
+          ["Block Height", "2,841"],
+          ["Transactions", "12,480"],
+          ["Network", "Ganache"],
+          ["Contract", "0x8a21...f291"],
+        ].map(([label, value]) => (
+          <div className="block-card" key={label}>
+            <span>{label}</span>
+            <strong>{value}</strong>
           </div>
-        </div>
-
-        <div className="detail-grid">
-          <div>
-            <span>Transaction ID</span>
-            <strong>TXN-2026-009821</strong>
-          </div>
-          <div>
-            <span>Block Number</span>
-            <strong>#1842</strong>
-          </div>
-          <div>
-            <span>Sender</span>
-            <strong>0x7A3...82F</strong>
-          </div>
-          <div>
-            <span>Receiver</span>
-            <strong>0x92B...19C</strong>
-          </div>
-          <div>
-            <span>Amount</span>
-            <strong>₹75,000</strong>
-          </div>
-          <div>
-            <span>Status</span>
-            <strong className="danger-text">Suspicious</strong>
-          </div>
-          <div className="full-detail">
-            <span>Transaction Hash</span>
-            <strong className="hash">
-              0x8f72c91a7b21d9034a8d...d821
-            </strong>
-          </div>
-          <div>
-            <span>Timestamp</span>
-            <strong>26 Sep 2026, 01:24 PM</strong>
-          </div>
-        </div>
-
-        <button className="primary-button verify-hash">
-          VERIFY BLOCKCHAIN INTEGRITY
-        </button>
+        ))}
       </div>
 
-      <div className="panel">
-        <div className="panel-header">
-          <div>
-            <h3>Recent Blockchain Records</h3>
-            <p>Latest transactions stored on the ledger.</p>
-          </div>
-        </div>
-
-        <TransactionTable blockchain />
-      </div>
+      <TransactionTable transactions={transactions} blockchain />
     </>
   );
 
   const renderAlerts = () => (
     <>
-      <div className="page-title">
-        <div>
-          <h1>Security Alerts</h1>
-          <p>Recent fraud and security events.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Security Alerts"
+        subtitle="Recent fraud detection events requiring attention"
+      />
 
       <div className="alerts">
-        <div className="alert high">
-          <div className="alert-icon">!</div>
-          <div>
-            <h3>High Risk Transaction</h3>
-            <p>₹85,000 transaction detected from ACC-938421.</p>
-            <small>2 minutes ago</small>
-          </div>
-          <span>HIGH</span>
-        </div>
-
-        <div className="alert medium">
-          <div className="alert-icon">!</div>
-          <div>
-            <h3>Unusual Activity</h3>
-            <p>Multiple transactions detected from ACC-102938.</p>
-            <small>15 minutes ago</small>
-          </div>
-          <span>MEDIUM</span>
-        </div>
-
-        <div className="alert success">
-          <div className="alert-icon">✓</div>
-          <div>
-            <h3>Transaction Verified</h3>
-            <p>Blockchain integrity successfully confirmed.</p>
-            <small>32 minutes ago</small>
-          </div>
-          <span>VERIFIED</span>
-        </div>
+        <Alert
+          type="fraud"
+          title="High-Risk Transaction Blocked"
+          text="Transaction TXN-10479 exceeded the high-risk threshold."
+          time="24 minutes ago"
+        />
+        <Alert
+          type="suspicious"
+          title="Unusual Transaction Detected"
+          text="Large transfer detected from account AC5521••72."
+          time="8 minutes ago"
+        />
+        <Alert
+          type="normal"
+          title="Blockchain Verification Complete"
+          text="Transaction TXN-10482 successfully recorded on-chain."
+          time="2 minutes ago"
+        />
       </div>
     </>
   );
 
   const renderSystem = () => (
     <>
-      <div className="page-title">
-        <div>
-          <h1>System Status</h1>
-          <p>Monitor all components of the fraud detection platform.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="System Status"
+        subtitle="Monitor the BlockShield application infrastructure"
+      />
 
       <div className="system-grid">
         {[
-          ["React Frontend", "User interface and transaction dashboard"],
-          ["Flask Backend", "Transaction processing API"],
-          ["Fraud Detection Engine", "Transaction risk analysis"],
-          ["Smart Contract", "Blockchain transaction recording"],
-          ["Ganache Blockchain", "Local Ethereum network"],
-          ["Database", "Transaction records and logs"],
+          ["React Frontend", "Application interface"],
+          ["Flask Backend", "API services"],
+          ["Fraud Engine", "Transaction analysis"],
+          ["Smart Contract", "Blockchain logic"],
+          ["Ganache Network", "Ethereum test network"],
+          ["Blockchain Ledger", "Immutable records"],
         ].map(([name, description]) => (
           <div className="system-card" key={name}>
-            <div className="service-icon">◉</div>
+            <div className="system-dot"></div>
             <div>
               <h3>{name}</h3>
               <p>{description}</p>
             </div>
-            <span className="online">ONLINE</span>
+            <strong>ONLINE</strong>
           </div>
         ))}
       </div>
 
-      <div className="architecture panel">
-        <h3>System Architecture</h3>
-
-        <div className="architecture-flow">
-          <div>USER</div>
-          <span>↓</span>
-          <div>REACT FRONTEND</div>
-          <span>↓</span>
-          <div>FLASK API</div>
-          <span>↓</span>
-          <div>FRAUD ENGINE</div>
-          <span>↓</span>
-          <div>SMART CONTRACT</div>
-          <span>↓</span>
-          <div>BLOCKCHAIN</div>
+      <section className="panel architecture">
+        <div className="panel-title">
+          <div>
+            <h3>BlockShield Architecture</h3>
+            <span>End-to-end transaction security flow</span>
+          </div>
         </div>
-      </div>
+
+        <div className="flow">
+          <FlowItem title="React" text="Frontend" />
+          <b>→</b>
+          <FlowItem title="Flask" text="Backend API" />
+          <b>→</b>
+          <FlowItem title="Fraud Engine" text="Risk Analysis" />
+          <b>→</b>
+          <FlowItem title="Smart Contract" text="Verification" />
+          <b>→</b>
+          <FlowItem title="Ganache" text="Blockchain" />
+        </div>
+      </section>
     </>
   );
-
-  function TransactionTable({ blockchain = false }) {
-    return (
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Transaction ID</th>
-              <th>Sender</th>
-              <th>Receiver</th>
-              <th>Amount</th>
-              <th>Risk</th>
-              <th>Status</th>
-              {blockchain && <th>Blockchain</th>}
-            </tr>
-          </thead>
-
-          <tbody>
-            {transactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td>{transaction.id}</td>
-                <td>{transaction.sender}</td>
-                <td>{transaction.receiver}</td>
-                <td>{transaction.amount}</td>
-                <td>
-                  <span
-                    className={`risk-badge ${transaction.risk.toLowerCase()}`}
-                  >
-                    {transaction.risk}
-                  </span>
-                </td>
-                <td>
-                  <span
-                    className={`status-badge ${
-                      transaction.status === "Normal" ? "normal" : "suspicious"
-                    }`}
-                  >
-                    {transaction.status}
-                  </span>
-                </td>
-                {blockchain && <td className="verified">✓ Verified</td>}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
 
   return (
     <div className="app">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-icon">S</div>
+          <div className="brand-icon">⬡</div>
           <div>
-            <h2>SecureBank</h2>
-            <span>Sentinel</span>
+            <h1>BlockShield</h1>
+            <span>Banking Security</span>
           </div>
         </div>
 
-        <div className="menu-label">MAIN MENU</div>
+        <div className="nav-section">
+          <span className="nav-label">MAIN</span>
 
-        <button
-          className={page === "dashboard" ? "menu active" : "menu"}
-          onClick={() => setPage("dashboard")}
-        >
-          <span>⌂</span> Dashboard
-        </button>
+          <NavItem
+            icon="⌂"
+            text="Dashboard"
+            active={page === "dashboard"}
+            onClick={() => navigate("dashboard")}
+          />
 
-        <button
-          className={page === "verify" ? "menu active" : "menu"}
-          onClick={() => setPage("verify")}
-        >
-          <span>↔</span> Verify Transaction
-        </button>
+          <NavItem
+            icon="✓"
+            text="Verify Transaction"
+            active={page === "verify"}
+            onClick={() => navigate("verify")}
+          />
 
-        <button
-          className={page === "transactions" ? "menu active" : "menu"}
-          onClick={() => setPage("transactions")}
-        >
-          <span>▤</span> Transactions
-        </button>
+          <NavItem
+            icon="≡"
+            text="Transactions"
+            active={page === "transactions"}
+            onClick={() => navigate("transactions")}
+          />
 
-        <button
-          className={page === "analytics" ? "menu active" : "menu"}
-          onClick={() => setPage("analytics")}
-        >
-          <span>◒</span> Fraud Analytics
-        </button>
+          <NavItem
+            icon="◔"
+            text="Fraud Analytics"
+            active={page === "analytics"}
+            onClick={() => navigate("analytics")}
+          />
 
-        <div className="menu-label">BLOCKCHAIN</div>
+          <NavItem
+            icon="⬡"
+            text="Blockchain Ledger"
+            active={page === "blockchain"}
+            onClick={() => navigate("blockchain")}
+          />
+        </div>
 
-        <button
-          className={page === "blockchain" ? "menu active" : "menu"}
-          onClick={() => setPage("blockchain")}
-        >
-          <span>⛓</span> Blockchain Ledger
-        </button>
+        <div className="nav-section">
+          <span className="nav-label">SYSTEM</span>
 
-        <button
-          className={page === "alerts" ? "menu active" : "menu"}
-          onClick={() => setPage("alerts")}
-        >
-          <span>⚠</span> Security Alerts
-          <b className="notification">3</b>
-        </button>
+          <NavItem
+            icon="!"
+            text="Security Alerts"
+            active={page === "alerts"}
+            onClick={() => navigate("alerts")}
+          />
 
-        <div className="menu-label">SYSTEM</div>
-
-        <button
-          className={page === "system" ? "menu active" : "menu"}
-          onClick={() => setPage("system")}
-        >
-          <span>⚙</span> System Status
-        </button>
+          <NavItem
+            icon="⚙"
+            text="System Status"
+            active={page === "system"}
+            onClick={() => navigate("system")}
+          />
+        </div>
 
         <div className="sidebar-bottom">
-          <div className="user-avatar">KB</div>
-          <div>
-            <strong>Bank Admin</strong>
-            <small>Security Officer</small>
+          <div className="network-status">
+            <i></i>
+            <div>
+              <strong>System Secure</strong>
+              <span>All services operational</span>
+            </div>
           </div>
         </div>
       </aside>
 
-      <main className="content">
+      <main className="main">
         <header className="topbar">
           <div className="breadcrumb">
-            SecureBank <span>/</span>{" "}
+            BlockShield <span>/</span>{" "}
             {page.charAt(0).toUpperCase() + page.slice(1)}
           </div>
 
           <div className="top-actions">
-            <div className="notification-icon">🔔</div>
-            <div className="admin">
-              <div className="mini-avatar">KB</div>
-              <span>Admin</span>
+            <div className="top-status">
+              <i></i> Blockchain Connected
             </div>
+            <div className="profile">BS</div>
           </div>
         </header>
 
-        <section className="page-content">
+        <div className="content">
           {page === "dashboard" && renderDashboard()}
           {page === "verify" && renderVerify()}
+
           {page === "transactions" && (
             <>
-              <div className="page-title">
-                <div>
-                  <h1>Transactions</h1>
-                  <p>Monitor and review all banking transactions.</p>
-                </div>
-              </div>
-
-              <div className="panel">
-                <TransactionTable />
-              </div>
+              <PageHeader
+                title="Transactions"
+                subtitle="Complete transaction monitoring history"
+              />
+              <TransactionTable transactions={transactions} />
             </>
           )}
+
           {page === "analytics" && renderAnalytics()}
           {page === "blockchain" && renderBlockchain()}
           {page === "alerts" && renderAlerts()}
           {page === "system" && renderSystem()}
-        </section>
+        </div>
       </main>
+    </div>
+  );
+}
+
+function PageHeader({ title, subtitle }) {
+  return (
+    <div className="page-header">
+      <div>
+        <h2>{title}</h2>
+        <p>{subtitle}</p>
+      </div>
+
+      <div className="live-badge">
+        <i></i> LIVE MONITORING
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ icon, text, active, onClick }) {
+  return (
+    <button className={`nav-item ${active ? "active" : ""}`} onClick={onClick}>
+      <span>{icon}</span>
+      {text}
+    </button>
+  );
+}
+
+function StatCard({ title, value, change, icon, warning }) {
+  return (
+    <div className="stat-card">
+      <div className="stat-top">
+        <span>{title}</span>
+        <div className={`stat-icon ${warning ? "warning" : ""}`}>{icon}</div>
+      </div>
+
+      <strong>{value}</strong>
+      <small>{change} <span>vs last period</span></small>
+    </div>
+  );
+}
+
+function RiskRow({ label, value, type }) {
+  return (
+    <div className="risk-row">
+      <span>
+        <i className={type}></i>
+        {label}
+      </span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function AnalyticsBar({ label, value, width }) {
+  return (
+    <div className="analytics-bar">
+      <div>
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+      <div className="bar-background">
+        <div style={{ width }}></div>
+      </div>
+    </div>
+  );
+}
+
+function TransactionTable({ transactions, blockchain = false }) {
+  return (
+    <section className="panel table-panel">
+      <div className="panel-title">
+        <div>
+          <h3>{blockchain ? "Blockchain Records" : "Recent Transactions"}</h3>
+          <span>
+            {blockchain
+              ? "Immutable transaction records"
+              : "Latest transaction activity"}
+          </span>
+        </div>
+
+        <button className="small-btn">View All →</button>
+      </div>
+
+      <div className="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Transaction</th>
+              <th>Sender</th>
+              <th>Receiver</th>
+              <th>Amount</th>
+              <th>Risk</th>
+              <th>Status</th>
+              <th>Hash</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {transactions.map((tx) => (
+              <tr key={tx.id}>
+                <td>
+                  <strong className="tx-id">{tx.id}</strong>
+                  <small>{tx.time}</small>
+                </td>
+                <td>{tx.sender}</td>
+                <td>{tx.receiver}</td>
+                <td>
+                  <strong>{tx.amount}</strong>
+                </td>
+                <td>
+                  <span className={`risk-number ${statusClass(tx.status)}`}>
+                    {tx.risk}
+                  </span>
+                </td>
+                <td>
+                  <span className={`status ${statusClass(tx.status)}`}>
+                    {tx.status}
+                  </span>
+                </td>
+                <td>
+                  <code>{tx.hash}</code>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function Alert({ type, title, text, time }) {
+  return (
+    <div className={`alert-card ${type}`}>
+      <div className="alert-icon">
+        {type === "fraud" ? "!" : type === "suspicious" ? "◉" : "✓"}
+      </div>
+
+      <div className="alert-content">
+        <h3>{title}</h3>
+        <p>{text}</p>
+        <span>{time}</span>
+      </div>
+
+      <button>View →</button>
+    </div>
+  );
+}
+
+function FlowItem({ title, text }) {
+  return (
+    <div className="flow-item">
+      <strong>{title}</strong>
+      <span>{text}</span>
     </div>
   );
 }
