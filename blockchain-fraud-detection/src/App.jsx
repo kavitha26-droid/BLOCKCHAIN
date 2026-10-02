@@ -79,6 +79,11 @@ function App() {
       return;
     }
 
+    if (amount <= 0) {
+      alert("Please enter a valid transaction amount.");
+      return;
+    }
+
     let risk;
     let status;
     let reason;
@@ -108,7 +113,11 @@ function App() {
       amount: `₹${amount.toLocaleString("en-IN")}`,
       risk,
       status,
-      hash: "0x" + Math.random().toString(16).substring(2, 10) + "...a821",
+      type: form.type,
+      hash:
+        "0x" +
+        Math.random().toString(16).substring(2, 10) +
+        "...a821",
       time: "Just now",
     };
 
@@ -119,11 +128,7 @@ function App() {
       hash: newTransaction.hash,
     });
 
-    setTransactions([newTransaction, ...transactions]);
-  };
-
-  const statusClass = (status) => {
-    return status.toLowerCase();
+    setTransactions((prev) => [newTransaction, ...prev]);
   };
 
   const renderDashboard = () => (
@@ -134,10 +139,34 @@ function App() {
       />
 
       <div className="stats-grid">
-        <StatCard title="Total Transactions" value="12,480" change="+8.2%" icon="↗" />
-        <StatCard title="Suspicious" value="327" change="+2.4%" icon="!" warning />
-        <StatCard title="Detection Rate" value="97.4%" change="+1.8%" icon="✓" />
-        <StatCard title="Blockchain Blocks" value="2,841" change="+124" icon="▣" />
+        <StatCard
+          title="Total Transactions"
+          value="12,480"
+          change="+8.2%"
+          icon="↗"
+        />
+
+        <StatCard
+          title="Suspicious"
+          value="327"
+          change="+2.4%"
+          icon="!"
+          warning
+        />
+
+        <StatCard
+          title="Detection Rate"
+          value="97.4%"
+          change="+1.8%"
+          icon="✓"
+        />
+
+        <StatCard
+          title="Blockchain Blocks"
+          value="2,841"
+          change="+124"
+          icon="▣"
+        />
       </div>
 
       <div className="dashboard-grid">
@@ -147,6 +176,7 @@ function App() {
               <h3>Transaction Activity</h3>
               <span>Last 7 days</span>
             </div>
+
             <button className="small-btn">7 Days ▾</button>
           </div>
 
@@ -191,7 +221,11 @@ function App() {
 
           <div className="risk-list">
             <RiskRow label="Normal" value="78%" type="normal" />
-            <RiskRow label="Suspicious" value="16%" type="suspicious" />
+            <RiskRow
+              label="Suspicious"
+              value="16%"
+              type="suspicious"
+            />
             <RiskRow label="Fraud" value="6%" type="fraud" />
           </div>
         </section>
@@ -212,6 +246,7 @@ function App() {
         <section className="panel form-panel">
           <div className="section-heading">
             <span className="section-icon">⌁</span>
+
             <div>
               <h3>Transaction Details</h3>
               <p>Enter transaction information</p>
@@ -219,41 +254,58 @@ function App() {
           </div>
 
           <label>Sender Account</label>
+
           <input
             placeholder="e.g. AC784291"
             value={form.sender}
             onChange={(e) =>
-              setForm({ ...form, sender: e.target.value })
+              setForm({
+                ...form,
+                sender: e.target.value,
+              })
             }
           />
 
           <label>Receiver Account</label>
+
           <input
             placeholder="e.g. AC219842"
             value={form.receiver}
             onChange={(e) =>
-              setForm({ ...form, receiver: e.target.value })
+              setForm({
+                ...form,
+                receiver: e.target.value,
+              })
             }
           />
 
           <label>Transaction Amount</label>
+
           <div className="amount-input">
             <span>₹</span>
+
             <input
               type="number"
               placeholder="0.00"
               value={form.amount}
               onChange={(e) =>
-                setForm({ ...form, amount: e.target.value })
+                setForm({
+                  ...form,
+                  amount: e.target.value,
+                })
               }
             />
           </div>
 
           <label>Transaction Type</label>
+
           <select
             value={form.type}
             onChange={(e) =>
-              setForm({ ...form, type: e.target.value })
+              setForm({
+                ...form,
+                type: e.target.value,
+              })
             }
           >
             <option>Online Transfer</option>
@@ -262,7 +314,10 @@ function App() {
             <option>Card Payment</option>
           </select>
 
-          <button className="analyze-btn" onClick={analyzeTransaction}>
+          <button
+            className="analyze-btn"
+            onClick={analyzeTransaction}
+          >
             ANALYZE TRANSACTION
             <span>→</span>
           </button>
@@ -272,7 +327,9 @@ function App() {
           {!result ? (
             <div className="empty-result">
               <div className="shield-large">⬡</div>
+
               <h3>Awaiting Analysis</h3>
+
               <p>
                 Submit transaction details to generate a fraud risk
                 assessment.
@@ -282,10 +339,18 @@ function App() {
             <>
               <div className="result-top">
                 <div>
-                  <span className="eyebrow">ANALYSIS RESULT</span>
+                  <span className="eyebrow">
+                    ANALYSIS RESULT
+                  </span>
+
                   <h2>{result.status}</h2>
                 </div>
-                <div className={`risk-score ${statusClass(result.status)}`}>
+
+                <div
+                  className={`risk-score ${getStatusClass(
+                    result.status
+                  )}`}
+                >
                   {result.risk}
                 </div>
               </div>
@@ -295,9 +360,13 @@ function App() {
                   <span>Risk Score</span>
                   <strong>{result.risk}/100</strong>
                 </div>
+
                 <div>
                   <span>Decision</span>
-                  <strong className={statusClass(result.status)}>
+
+                  <strong
+                    className={getStatusClass(result.status)}
+                  >
                     {result.status}
                   </strong>
                 </div>
@@ -327,10 +396,33 @@ function App() {
       />
 
       <div className="stats-grid">
-        <StatCard title="Fraud Attempts" value="184" change="-12.4%" icon="!" />
-        <StatCard title="Blocked" value="163" change="+6.1%" icon="⊘" />
-        <StatCard title="False Positives" value="2.6%" change="-0.8%" icon="⌁" />
-        <StatCard title="Avg. Risk Score" value="28.7" change="-4.2%" icon="◈" />
+        <StatCard
+          title="Fraud Attempts"
+          value="184"
+          change="-12.4%"
+          icon="!"
+        />
+
+        <StatCard
+          title="Blocked"
+          value="163"
+          change="+6.1%"
+          icon="⊘"
+        />
+
+        <StatCard
+          title="False Positives"
+          value="2.6%"
+          change="-0.8%"
+          icon="⌁"
+        />
+
+        <StatCard
+          title="Avg. Risk Score"
+          value="28.7"
+          change="-4.2%"
+          icon="◈"
+        />
       </div>
 
       <div className="analytics-grid">
@@ -343,15 +435,31 @@ function App() {
           </div>
 
           <div className="horizontal-bars">
-            <AnalyticsBar label="Low Risk" value="78%" width="78%" />
-            <AnalyticsBar label="Medium Risk" value="16%" width="16%" />
-            <AnalyticsBar label="High Risk" value="6%" width="6%" />
+            <AnalyticsBar
+              label="Low Risk"
+              value="78%"
+              width="78%"
+            />
+
+            <AnalyticsBar
+              label="Medium Risk"
+              value="16%"
+              width="16%"
+            />
+
+            <AnalyticsBar
+              label="High Risk"
+              value="6%"
+              width="6%"
+            />
           </div>
         </section>
 
         <section className="panel detection-card">
           <span className="eyebrow">DETECTION ENGINE</span>
+
           <h2>97.4%</h2>
+
           <p>Overall fraud detection rate</p>
 
           <div className="progress">
@@ -377,10 +485,12 @@ function App() {
 
       <div className="blockchain-banner">
         <div className="chain-icon">⬡</div>
+
         <div>
           <span>NETWORK STATUS</span>
           <h3>Ganache Local Ethereum Network</h3>
         </div>
+
         <div className="online">
           <i></i> Connected
         </div>
@@ -400,7 +510,10 @@ function App() {
         ))}
       </div>
 
-      <TransactionTable transactions={transactions} blockchain />
+      <TransactionTable
+        transactions={transactions}
+        blockchain
+      />
     </>
   );
 
@@ -418,12 +531,14 @@ function App() {
           text="Transaction TXN-10479 exceeded the high-risk threshold."
           time="24 minutes ago"
         />
+
         <Alert
           type="suspicious"
           title="Unusual Transaction Detected"
           text="Large transfer detected from account AC5521••72."
           time="8 minutes ago"
         />
+
         <Alert
           type="normal"
           title="Blockchain Verification Complete"
@@ -452,10 +567,12 @@ function App() {
         ].map(([name, description]) => (
           <div className="system-card" key={name}>
             <div className="system-dot"></div>
+
             <div>
               <h3>{name}</h3>
               <p>{description}</p>
             </div>
+
             <strong>ONLINE</strong>
           </div>
         ))}
@@ -465,19 +582,25 @@ function App() {
         <div className="panel-title">
           <div>
             <h3>BlockShield Architecture</h3>
-            <span>End-to-end transaction security flow</span>
+            <span>
+              End-to-end transaction security flow
+            </span>
           </div>
         </div>
 
         <div className="flow">
           <FlowItem title="React" text="Frontend" />
           <b>→</b>
+
           <FlowItem title="Flask" text="Backend API" />
           <b>→</b>
+
           <FlowItem title="Fraud Engine" text="Risk Analysis" />
           <b>→</b>
+
           <FlowItem title="Smart Contract" text="Verification" />
           <b>→</b>
+
           <FlowItem title="Ganache" text="Blockchain" />
         </div>
       </section>
@@ -489,6 +612,7 @@ function App() {
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-icon">⬡</div>
+
           <div>
             <h1>BlockShield</h1>
             <span>Banking Security</span>
@@ -555,6 +679,7 @@ function App() {
         <div className="sidebar-bottom">
           <div className="network-status">
             <i></i>
+
             <div>
               <strong>System Secure</strong>
               <span>All services operational</span>
@@ -567,19 +692,22 @@ function App() {
         <header className="topbar">
           <div className="breadcrumb">
             BlockShield <span>/</span>{" "}
-            {page.charAt(0).toUpperCase() + page.slice(1)}
+            {page.charAt(0).toUpperCase() +
+              page.slice(1)}
           </div>
 
           <div className="top-actions">
             <div className="top-status">
               <i></i> Blockchain Connected
             </div>
+
             <div className="profile">BS</div>
           </div>
         </header>
 
         <div className="content">
           {page === "dashboard" && renderDashboard()}
+
           {page === "verify" && renderVerify()}
 
           {page === "transactions" && (
@@ -588,19 +716,41 @@ function App() {
                 title="Transactions"
                 subtitle="Complete transaction monitoring history"
               />
-              <TransactionTable transactions={transactions} />
+
+              <TransactionTable
+                transactions={transactions}
+              />
             </>
           )}
 
           {page === "analytics" && renderAnalytics()}
+
           {page === "blockchain" && renderBlockchain()}
+
           {page === "alerts" && renderAlerts()}
+
           {page === "system" && renderSystem()}
         </div>
       </main>
     </div>
   );
 }
+
+/* =========================
+   HELPER FUNCTIONS
+========================= */
+
+function getStatusClass(status) {
+  if (!status) {
+    return "";
+  }
+
+  return status.toLowerCase();
+}
+
+/* =========================
+   COMPONENTS
+========================= */
 
 function PageHeader({ title, subtitle }) {
   return (
@@ -617,25 +767,49 @@ function PageHeader({ title, subtitle }) {
   );
 }
 
-function NavItem({ icon, text, active, onClick }) {
+function NavItem({
+  icon,
+  text,
+  active,
+  onClick,
+}) {
   return (
-    <button className={`nav-item ${active ? "active" : ""}`} onClick={onClick}>
+    <button
+      className={`nav-item ${active ? "active" : ""}`}
+      onClick={onClick}
+    >
       <span>{icon}</span>
       {text}
     </button>
   );
 }
 
-function StatCard({ title, value, change, icon, warning }) {
+function StatCard({
+  title,
+  value,
+  change,
+  icon,
+  warning,
+}) {
   return (
     <div className="stat-card">
       <div className="stat-top">
         <span>{title}</span>
-        <div className={`stat-icon ${warning ? "warning" : ""}`}>{icon}</div>
+
+        <div
+          className={`stat-icon ${
+            warning ? "warning" : ""
+          }`}
+        >
+          {icon}
+        </div>
       </div>
 
       <strong>{value}</strong>
-      <small>{change} <span>vs last period</span></small>
+
+      <small>
+        {change} <span>vs last period</span>
+      </small>
     </div>
   );
 }
@@ -647,18 +821,24 @@ function RiskRow({ label, value, type }) {
         <i className={type}></i>
         {label}
       </span>
+
       <strong>{value}</strong>
     </div>
   );
 }
 
-function AnalyticsBar({ label, value, width }) {
+function AnalyticsBar({
+  label,
+  value,
+  width,
+}) {
   return (
     <div className="analytics-bar">
       <div>
         <span>{label}</span>
         <strong>{value}</strong>
       </div>
+
       <div className="bar-background">
         <div style={{ width }}></div>
       </div>
@@ -666,12 +846,24 @@ function AnalyticsBar({ label, value, width }) {
   );
 }
 
-function TransactionTable({ transactions, blockchain = false }) {
+/* =========================
+   FIXED TRANSACTION TABLE
+========================= */
+
+function TransactionTable({
+  transactions,
+  blockchain = false,
+}) {
   return (
     <section className="panel table-panel">
       <div className="panel-title">
         <div>
-          <h3>{blockchain ? "Blockchain Records" : "Recent Transactions"}</h3>
+          <h3>
+            {blockchain
+              ? "Blockchain Records"
+              : "Recent Transactions"}
+          </h3>
+
           <span>
             {blockchain
               ? "Immutable transaction records"
@@ -679,7 +871,9 @@ function TransactionTable({ transactions, blockchain = false }) {
           </span>
         </div>
 
-        <button className="small-btn">View All →</button>
+        <button className="small-btn">
+          View All →
+        </button>
       </div>
 
       <div className="table-wrapper">
@@ -697,32 +891,51 @@ function TransactionTable({ transactions, blockchain = false }) {
           </thead>
 
           <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id}>
-                <td>
-                  <strong className="tx-id">{tx.id}</strong>
-                  <small>{tx.time}</small>
-                </td>
-                <td>{tx.sender}</td>
-                <td>{tx.receiver}</td>
-                <td>
-                  <strong>{tx.amount}</strong>
-                </td>
-                <td>
-                  <span className={`risk-number ${statusClass(tx.status)}`}>
-                    {tx.risk}
-                  </span>
-                </td>
-                <td>
-                  <span className={`status ${statusClass(tx.status)}`}>
-                    {tx.status}
-                  </span>
-                </td>
-                <td>
-                  <code>{tx.hash}</code>
-                </td>
-              </tr>
-            ))}
+            {transactions.map((tx) => {
+              const statusClass = getStatusClass(
+                tx.status
+              );
+
+              return (
+                <tr key={tx.id}>
+                  <td>
+                    <strong className="tx-id">
+                      {tx.id}
+                    </strong>
+
+                    <small>{tx.time}</small>
+                  </td>
+
+                  <td>{tx.sender}</td>
+
+                  <td>{tx.receiver}</td>
+
+                  <td>
+                    <strong>{tx.amount}</strong>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`risk-number ${statusClass}`}
+                    >
+                      {tx.risk}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status ${statusClass}`}
+                    >
+                      {tx.status}
+                    </span>
+                  </td>
+
+                  <td>
+                    <code>{tx.hash}</code>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -730,11 +943,20 @@ function TransactionTable({ transactions, blockchain = false }) {
   );
 }
 
-function Alert({ type, title, text, time }) {
+function Alert({
+  type,
+  title,
+  text,
+  time,
+}) {
   return (
     <div className={`alert-card ${type}`}>
       <div className="alert-icon">
-        {type === "fraud" ? "!" : type === "suspicious" ? "◉" : "✓"}
+        {type === "fraud"
+          ? "!"
+          : type === "suspicious"
+          ? "◉"
+          : "✓"}
       </div>
 
       <div className="alert-content">
